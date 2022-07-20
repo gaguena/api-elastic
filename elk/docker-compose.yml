@@ -53,7 +53,7 @@ services:
       ELASTICSEARCH_HOST: "http//:elasticsearch//:9200"
       XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "true"
     ports:
-      - "5609:5609"
+      - "5609:5601"
     networks:
       - elk
     restart: unless-stopped
