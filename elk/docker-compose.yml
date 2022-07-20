@@ -10,15 +10,8 @@ services:
     environment:
       ELASTIC_PASSWORD: "elastic"
       discovery.type: single-node
-      xpack.security.enabled: "true"
     ports:
-      - "9207:9200"
-      - "9300:9300"
-    healthcheck:
-      test: "wget -q -O - http://elastic:elastic@localhost:9200/_cat/health"
-      interval: 1s
-      timeout: 30s
-      retries: 300
+      - "9201:9200"
     networks:
       - elk
 
