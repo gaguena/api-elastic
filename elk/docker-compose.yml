@@ -1,0 +1,65 @@
+version: '3.2'
+
+services:
+
+  elasticsearch:
+    image: elasticsearch:7.7.0
+    container_name: elasticsearch
+    volumes:
+      - ./elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      ELASTIC_PASSWORD: "elastic"
+      discovery.type: single-node
+      xpack.security.enabled: "true"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    healthcheck:
+      test: "wget -q -O - http://elastic:elastic@localhost:9200/_cat/health"
+      interval: 1s
+      timeout: 30s
+      retries: 300
+    networks:
+      - elk
+    restart: unless-stopped
+
+  logstash:
+    image: logstash:7.7.0
+    container_name: logstash
+    ports:
+      - "5000:5000"
+      - "9600:9600"
+    environment:
+      ELASTIC_USER: 'elastic'
+      ELASTIC_PASSWORD: 'elastic'
+      XPACK_MONITORING_ELASTICSEARCH_USERNAME: "elastic"
+      XPACK_MONITORING_ELASTICSEARCH_PASSWORD: "elastic"
+      XPACK_MONITORING_ELASTICSEARCH_HOSTS: "http//:elasticsearch//:9200"
+      XPACK_MONITORING_ENABLED: "true"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    networks:
+      - elk
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana:7.7.0
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_USERNAME: "elastic"
+      ELASTICSEARCH_PASSWORD: "elastic"
+      ELASTICSEARCH_HOST: "http//:elasticsearch//:9200"
+      XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "true"
+    ports:
+      - "5609:5609"
+    networks:
+      - elk
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+      - logstash
+
+networks:
+  elk:
