@@ -1,0 +1,37 @@
+version: '3.2'
+
+services:
+
+  elasticsearch:
+    image: elasticsearch:7.7.0
+    container_name: elasticsearch
+    environment:
+      ELASTIC_USERNAME: elastic
+      ELASTIC_PASSWORD: elastic
+      discovery.type: single-node
+      xpack.security.enabled: "true"
+    ports:
+      - "9207:9200"
+      - "9300:9300"
+    healthcheck:
+      test: "wget -q -O - http://elastic:elastic@localhost:9200/_cat/health"
+      interval: 1s
+      timeout: 30s
+      retries: 300
+    networks:
+      - elk
+  kibana:
+    image: kibana:7.7.0
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD: elastic
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9207
+    ports:
+      - "5607:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+networks:
+  elk:
