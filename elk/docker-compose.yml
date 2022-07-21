@@ -9,7 +9,7 @@ services:
       ELASTIC_USERNAME: elastic
       ELASTIC_PASSWORD: elastic
       discovery.type: single-node
-      xpack.security.enabled: true
+      xpack.security.enabled: "true"
     ports:
       - "9207:9200"
       - "9300:9300"
@@ -20,6 +20,18 @@ services:
       retries: 300
     networks:
       - elk
-
+  kibana:
+    image: kibana:7.7.0
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD: elastic
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5607:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
 networks:
   elk:
